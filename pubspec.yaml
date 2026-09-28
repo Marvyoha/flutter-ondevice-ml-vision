@@ -14,8 +14,19 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.5.1
+  camera: ^0.11.0
+  image_picker: ^1.2.0
+  tflite_flutter: ^0.11.0
+  fl_chart: ^0.68.0
+  flutter_screenutil: ^5.9.0
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  remixicon: ^4.0.0
+  skeletonizer: ^0.4.0
+  path_provider: ^2.1.2
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
@@ -27,6 +38,8 @@ dev_dependencies:
 
 flutter:
 
-
   uses-material-design: true
+  assets:
+    - assets/models/
+    - assets/labels.txt
 

@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is used to capture images for on-device CIFAR-10 classification.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to select images for on-device classification.</string>
 </dict>
 </plist>
