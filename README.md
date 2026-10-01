@@ -70,7 +70,7 @@ Trained and quantized in-repo and documented in https://github.com/Marvyoha/pyto
 
 ```bash
 # clone
-git clone <repo>
+git clone https://github.com/Marvyoha/flutter-ondevice-ml-vision.git
 cd flutter-ondevice-ml-vision
 
 # install dependencies
