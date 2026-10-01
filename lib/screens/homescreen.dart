@@ -46,15 +46,15 @@ class ClassificationScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CIFAR-10 Edge AI'),
+        title: const Text('CIFAR Lens'),
         centerTitle: true,
-        actions: [
-          Icon(
-            state.isModelReady ? Icons.check_circle : Icons.hourglass_top,
-            color: state.isModelReady ? Colors.green : Colors.orange,
-          ),
-          const SizedBox(width: 16),
-        ],
+        // actions: [
+        //   Icon(
+        //     state.isModelReady ? Icons.check_circle : Icons.hourglass_top,
+        //     color: state.isModelReady ? Colors.green : Colors.orange,
+        //   ),
+        //   const SizedBox(width: 16),
+        // ],
       ),
       body: SafeArea(
         child: Column(

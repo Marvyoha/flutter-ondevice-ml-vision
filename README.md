@@ -2,6 +2,10 @@
 
 **CIFAR Lens** is a Flutter app that performs real-time on-device image classification for the 10 CIFAR-10 classes using a post-training INT8-quantized TFLite model. Inference runs locally with no network calls, ~0.73 ms/image on CPU, and 0.61 MB model size.
 
+## Demo
+
+<video src="https://github.com/user-attachments/assets/c253c543-8813-4c60-9b9c-cac2ae2a0409" width="600" autoplay loop muted playsinline></video>
+
 ## Features
 
 - Capture from camera or import from gallery
