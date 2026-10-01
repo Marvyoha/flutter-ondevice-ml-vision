@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import '../models/classification_result.dart';
 
 class CIFAR10Classifier {
-  static const String modelAssetPath = 'assets/models/custom_cifar_10.tflite';
-  static const double confidenceThreshold = 0.65;
+  static const String modelAssetPath = 'assets/models/cnn_model_int8.tflite';
+  static const double confidenceThreshold = 0.45;
   static const int inputSize = 32;
 
   static const List<String> labels = [
@@ -23,10 +22,8 @@ class CIFAR10Classifier {
     'truck',
   ];
 
-  static const double inputScale = 0.003921568859368563;
-  static const int inputZeroPoint = -128;
-  static const double outputScale = 0.09988654404878616;
-  static const int outputZeroPoint = -1;
+  static const double outputScale = 0.11211809515953064;
+  static const int outputZeroPoint = -2;
 
   Interpreter? _interpreter;
   bool _isLoaded = false;
@@ -36,7 +33,10 @@ class CIFAR10Classifier {
     if (_isLoaded) return;
     try {
       final options = InterpreterOptions()..threads = 2;
-      _interpreter = await Interpreter.fromAsset(modelAssetPath, options: options);
+      _interpreter = await Interpreter.fromAsset(
+        modelAssetPath,
+        options: options,
+      );
       _interpreter!.allocateTensors();
       _isLoaded = true;
     } catch (e) {
@@ -60,13 +60,19 @@ class CIFAR10Classifier {
 
       final inputBuffer = _preprocessImage(decodedImage);
 
-      var outputBuffer = List<int>.filled(10, 0).reshape([1, 10]);
+      var outputBuffer = List.generate(
+        1,
+        (_) => List<int>.filled(10, 0),
+      );
 
       _interpreter!.run(inputBuffer, outputBuffer);
       stopwatch.stop();
 
-      final rawInt8Outputs = (outputBuffer as List)[0] as List<int>;
-      return _postProcess(rawInt8Outputs, stopwatch.elapsedMicroseconds / 1000.0);
+      final rawInt8Outputs = (outputBuffer)[0] as List<int>;
+      return _postProcess(
+        rawInt8Outputs,
+        stopwatch.elapsedMicroseconds / 1000.0,
+      );
     } catch (e) {
       return ClassificationResult.error('Inference error: $e');
     }
@@ -84,21 +90,18 @@ class CIFAR10Classifier {
       1,
       (_) => List.generate(
         inputSize,
-        (y) => List.generate(
-          inputSize,
-          (x) {
-            final pixel = resized.getPixel(x, y);
-            final r = pixel.r.toInt();
-            final g = pixel.g.toInt();
-            final b = pixel.b.toInt();
+        (y) => List.generate(inputSize, (x) {
+          final pixel = resized.getPixel(x, y);
+          final r = pixel.r.toInt();
+          final g = pixel.g.toInt();
+          final b = pixel.b.toInt();
 
-            return [
-              (r - 128).clamp(-128, 127),
-              (g - 128).clamp(-128, 127),
-              (b - 128).clamp(-128, 127),
-            ];
-          },
-        ),
+          return [
+            (r - 128).clamp(-128, 127),
+            (g - 128).clamp(-128, 127),
+            (b - 128).clamp(-128, 127),
+          ];
+        }),
       ),
     );
 
@@ -106,7 +109,9 @@ class CIFAR10Classifier {
   }
 
   ClassificationResult _postProcess(List<int> rawOutput, double latencyMs) {
-    final logits = rawOutput.map((q) => (q - outputZeroPoint) * outputScale).toList();
+    final logits = rawOutput
+        .map((q) => (q - outputZeroPoint) * outputScale)
+        .toList();
 
     final maxLogit = logits.reduce(math.max);
     final expScores = logits.map((l) => math.exp(l - maxLogit)).toList();

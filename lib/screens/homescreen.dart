@@ -1,8 +1,9 @@
-import 'package:cifar_lens/screens/onboarding_screen.dart';
+import 'onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../models/classification_result.dart';
 import '../providers/classifier_provider.dart';
 
 class OnboardingGate extends ConsumerWidget {
@@ -152,16 +153,16 @@ class ClassificationScreen extends ConsumerWidget {
 }
 
 class ResultCard extends StatelessWidget {
-  final dynamic result;
+  final ClassificationResult result;
 
   const ResultCard({super.key, required this.result});
 
   @override
   Widget build(BuildContext context) {
-    final isConfident = result.isConfident as bool;
-    final label = result.label as String?;
-    final confidence = (result.confidence as double) * 100;
-    final latency = result.inferenceTimeMs as double;
+    final isConfident = result.isConfident;
+    final label = result.label;
+    final confidence = result.confidence * 100;
+    final latency = result.inferenceTimeMs;
 
     return Card(
       elevation: 2,
@@ -190,34 +191,35 @@ class ResultCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: result.confidence as double,
+              value: result.confidence,
               color: isConfident ? Colors.green : Colors.orange,
             ),
             const SizedBox(height: 6),
             Text(
               isConfident
                   ? 'Confidence: ${confidence.toStringAsFixed(1)}%'
-                  : 'Low Confidence (${confidence.toStringAsFixed(1)}% < 65% threshold)',
+                  : 'Low Confidence (${confidence.toStringAsFixed(1)}% < 45% threshold)',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const Divider(height: 16),
             Expanded(
               child: ListView(
-                children: (result.allProbabilities as Map<String, double>)
-                    .entries
-                    .map(
-                      (e) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(e.key),
-                            Text('${(e.value * 100).toStringAsFixed(1)}%'),
-                          ],
-                        ),
-                      ),
-                    )
-                    .toList(),
+                children:
+                    (result.allProbabilities.entries.toList()
+                          ..sort((a, b) => b.value.compareTo(a.value)))
+                        .map(
+                          (e) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(e.key),
+                                Text('${(e.value * 100).toStringAsFixed(1)}%'),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
               ),
             ),
           ],
